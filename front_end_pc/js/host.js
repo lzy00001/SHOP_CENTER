@@ -1,0 +1,1 @@
+var host = 'http://api.shopping.site:8000';
