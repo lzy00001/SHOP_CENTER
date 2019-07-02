@@ -31,7 +31,7 @@ SECRET_KEY = 'f#)662_zthrv#7tlt0c3o_#akcw$5#uygfbye%@=$oue!ji6^&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','www.shopping.site','api.shopping.site','localhost']
+ALLOWED_HOSTS = ['127.0.0.1','www.meiduo.site','api.meiduo.site','localhost']
 
 
 # Application definition
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     # 'shopping_mall.apps.users.apps.UsersConfig',
     'users.apps.UsersConfig',
     'verifications.apps.VerificationsConfig',
+    'oauth.apps.OauthConfig',
 ]
 
 MIDDLEWARE = [
@@ -241,3 +242,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 #     'api.shopping.site:8080'
 # )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+
+# QQ登录参数
+QQ_CLIENT_ID = '101474184'
+QQ_CLIENT_SECRET = 'c6ce949e04e12ecc909ae6a8b09b637c'
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8080/oauth_callback.html'
+QQ_STATE = '/'
