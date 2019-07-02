@@ -4,7 +4,7 @@ from django_redis import get_redis_connection
 
 class ImageCodeCheckSerializer(serializers.Serializer):
     """
-    图片验证码校验序列化器
+    短信验证码校验序列化器
     """
     image_code_id = serializers.UUIDField()
     text = serializers.CharField(max_length=4, min_length=4)

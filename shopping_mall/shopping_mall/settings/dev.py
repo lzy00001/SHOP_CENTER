@@ -220,11 +220,16 @@ REST_FRAMEWORK = {
 # JWT
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=5),
+    'JWT_RESPONSE_PAYLOAD_HANDLER':'users.utils.jwt_response_payload_handler'
 }
 
 # 用户注册
 AUTH_USER_MODEL = 'users.User'
 
+# 用户登录
+AUTHENTICATION_BACKENDS = [
+    'users.utils.UsernameMobileAuthBackend',
+]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
