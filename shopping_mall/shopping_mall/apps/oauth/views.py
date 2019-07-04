@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from rest_framework.views import APIView
@@ -9,6 +10,8 @@ from rest_framework_jwt.settings import api_settings
 
 from oauth.exceptions import OAuthQQAPIError
 from oauth.models import OAuthQQUser
+from oauth.serializers import OAuthQQUserSerializer
+
 from oauth.utils import OAuthQQ
 
 
@@ -22,8 +25,9 @@ class QQAuthURLView(APIView):
         return Response({"login_url":login_url})
 
 
-class QQAuthUserView(APIView):
+class QQAuthUserView(GenericAPIView):
     """QQ登录的用户"""
+    serializer_class = OAuthQQUserSerializer
     def get(self, request):
         # 获取code
         code = request.query_params.get("code")
@@ -62,4 +66,16 @@ class QQAuthUserView(APIView):
                 'token': token
             })
 
-        # 数据不存在,创建用户,处理openid并返回
+    # 数据不存在,创建用户,处理openid并返回
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        response = Response({
+            'token': user.token,
+            'user_id': user.id,
+            'username': user.username
+        })
+
+        return response
