@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import datetime
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # sys.path保存了Python解释器的导包路径
@@ -29,7 +31,7 @@ SECRET_KEY = 'f#)662_zthrv#7tlt0c3o_#akcw$5#uygfbye%@=$oue!ji6^&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','www.shopping.site','api.shopping.site','localhost']
+ALLOWED_HOSTS = ['127.0.0.1','www.meiduo.site','api.meiduo.site','localhost']
 
 
 # Application definition
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     # 'shopping_mall.apps.users.apps.UsersConfig',
     'users.apps.UsersConfig',
     'verifications.apps.VerificationsConfig',
+    'oauth.apps.OauthConfig',
 ]
 
 MIDDLEWARE = [
@@ -208,11 +211,26 @@ LOGGING = {
 REST_FRAMEWORK = {
     # 异常处理
     'EXCEPTION_HANDLER': 'shopping_mall.utils.exceptions.exception_handler',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+
+# JWT
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=5),
+    'JWT_RESPONSE_PAYLOAD_HANDLER':'users.utils.jwt_response_payload_handler'
 }
 
 # 用户注册
 AUTH_USER_MODEL = 'users.User'
 
+# 用户登录
+AUTHENTICATION_BACKENDS = [
+    'users.utils.UsernameMobileAuthBackend',
+]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -221,6 +239,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 #     '127.0.0.1:8080',
 #     'localhost:8080',
 #     'www.shopping.site:8080',
-#     'api.shopping.site:8080'
+#     'http://api.shopping.site:8080'
 # )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+
+# QQ登录参数
+QQ_CLIENT_ID = '101474184'
+QQ_CLIENT_SECRET = 'c6ce949e04e12ecc909ae6a8b09b637c'
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8080/oauth_callback.html'
+QQ_STATE = '/'
