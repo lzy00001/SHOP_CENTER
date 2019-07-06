@@ -3,16 +3,20 @@ from django.shortcuts import render
 # Create your views here.
 # url(r'^usernames/(?P<username>\w{5,20})/count/$', views.UsernameCountView.as_view()),
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
+from users import constants
 from users.models import User
 
 
 # url(r'^users/$', views.UserView.as_view()),
-from users.serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer
+from users.serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer, UserAddressSerializer, AddressTitleSerializer
 
 
 class UserView(CreateAPIView):
@@ -84,5 +88,61 @@ class VerifyEmailView(APIView):
             user.email_active = True
             user.save()
             return Response({"message":"OK"})
+
+
+class AddressViewSet(CreateModelMixin, UpdateModelMixin, GenericViewSet):
+    """用户的新增、修改、删除、设置默认地址"""
+    serializer_class = UserAddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.addresses.filter(is_deleted=False)
+
+    def list(self, request, *args, **kwargs):
+        """用户地址列表更新"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        user = self.request.user
+        return Response({
+            "user_id":user.id,
+            "default_addrss_id":user.default_address,   # 默认地址ID
+            "limit":constants.USER_ADDRESS_COUNTS_LIMIT,
+            "addresses":serializer.data,
+        })
+
+    def create(self, request, *args, **kwargs):
+        """保存用户地址"""
+        # 检查用户地址是否超过上限
+        count = request.user.addresses.count()
+        if count >= constants.USER_ADDRESS_COUNTS_LIMIT:
+            return Response({"message":"保存地址数据已经达到上限"}, status=status.HTTP_400_BAD_REQUEST)
+        return super().create(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        """用户地址删除"""
+        address = self.get_object()
+
+        # 进行逻辑删除
+        address.is_deleted = True
+        address.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=["put"], detail=True)
+    def status(self, request, *args, **kwargs):
+        address = self.get_object()
+        request.user.default_address = address
+        request.user.save()
+        return Response({"message":"ok"}, status=status.HTTP_200_OK)
+
+    @action(methods=["put"], detail=True)
+    def title(self, request, *args, **kwargs):
+        """修改标题"""
+        address = self.get_object()
+        serializer = AddressTitleSerializer(instance=address, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
 
 
