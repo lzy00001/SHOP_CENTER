@@ -260,3 +260,11 @@ EMAIL_HOST_USER = "lzy812459586@163.com"
 EMAIL_HOST_PASSWORD  = "9790yu00"
 # 收件人看到的发件人
 EMAIL_FROM = "lzy<lzy812459586@163.com>"
+
+# DRF扩展：缓存数据
+REST_FRAMEWORK_EXTMNSIONS = {
+    # 缓存时间
+    "DEFAULT_CACHE_RESPONSE_TIMEOUT":60*60,
+    # 缓存存储
+    "DEFAULT_USE_CACHE":"default"
+}
