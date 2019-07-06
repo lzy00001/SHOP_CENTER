@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 # url(r'^usernames/(?P<username>\w{5,20})/count/$', views.UsernameCountView.as_view()),
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -65,4 +66,23 @@ class EmailView(UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class VerifyEmailView(APIView):
+    """邮箱验证"""
+    def get(self, request):
+        """获取token"""
+        token = request.query_params.get("token")
+        if not token:
+            return Response({"message":"缺少token"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 校验token
+        user = User.check_verify_email_token(token)
+        if user is None:
+            return Response({"messsage":"链接信息无效"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            user.email_active = True
+            user.save()
+            return Response({"message":"OK"})
+
 

@@ -119,6 +119,7 @@ class EmailSerializer(serializers.ModelSerializer):
         email = validated_data["email"]
         # 保存
         instance.email = email
+        instance.save()
 
         verify_url = instance.generate_verify_email_url()
 
