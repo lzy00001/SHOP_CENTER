@@ -113,7 +113,7 @@ class AddressViewSet(CreateModelMixin, UpdateModelMixin, GenericViewSet):
     def create(self, request, *args, **kwargs):
         """保存用户地址"""
         # 检查用户地址是否超过上限
-        count = request.user.addresses.count()
+        count = request.user.addresses.filter(is_delect=False).count()
         if count >= constants.USER_ADDRESS_COUNTS_LIMIT:
             return Response({"message":"保存地址数据已经达到上限"}, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
