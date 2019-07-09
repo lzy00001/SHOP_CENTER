@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 # url(r'^usernames/(?P<username>\w{5,20})/count/$', views.UsernameCountView.as_view()),
+from django_redis import get_redis_connection
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
@@ -11,12 +12,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
+from goods.models import SKU
 from users import constants
 from users.models import User
 
 
 # url(r'^users/$', views.UserView.as_view()),
-from users.serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer, UserAddressSerializer, AddressTitleSerializer
+from users.serializers import CreateUserSerializer, UserDetailSerializer, EmailSerializer, UserAddressSerializer, \
+    AddressTitleSerializer, AddUserBrowsingHistorySerializer, SKUSerializer
 
 
 class UserView(CreateAPIView):
@@ -144,5 +147,28 @@ class AddressViewSet(CreateModelMixin, UpdateModelMixin, GenericViewSet):
         return Response(serializer.data)
 
 
+class UserBrowsingHistoryView(CreateAPIView):
+    """
+    用户浏览历史记录
+    """
+    serializer_class = AddUserBrowsingHistorySerializer
+    permission_classes = [IsAuthenticated]
 
 
+    def get(self, request):
+        """获取浏览记录"""
+        user_id = request.user.id
+
+        # 查询redis  list
+        redis_conn = get_redis_connection("history")
+        sku_id_list = redis_conn.lrange("history_%s" % user_id, 0, constants.USER_BROWSE_HISTORY_MAX_LIMIT)
+
+        # 遍历获取数据
+        skus = []
+        for sku_id in sku_id_list:
+            sku = SKU.objects.get(id=sku_id)
+            skus.append(sku)
+
+        # 序列化返回
+        serializer = SKUSerializer(skus, many=True)
+        return Response(serializer.data)
