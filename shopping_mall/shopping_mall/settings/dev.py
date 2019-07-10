@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django_crontab',  # 定时任务
     'users.apps.UsersConfig',
     'verifications.apps.VerificationsConfig',
+    'rest_framework',
     'oauth.apps.OauthConfig',
     'areas.apps.AreasConfig',
     'goods.apps.GoodsConfig',
