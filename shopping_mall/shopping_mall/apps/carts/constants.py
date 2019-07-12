@@ -1,0 +1,2 @@
+# 购物车有效期
+CART_COOKIE_EXPIRES = 31 * 24 * 60 * 60

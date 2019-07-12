@@ -1,0 +1,21 @@
+from rest_framework import serializers
+
+from goods.models import SKU
+
+
+class CartSerializer(serializers.Serializer):
+    """添加商品到购物车序列化器"""
+    sku_id = serializers.IntegerField(label="sku_id", min_value=1)
+    count = serializers.IntegerField(label="数量", min_value=1)
+    selected = serializers.BooleanField(label="是否勾选", default=True)
+
+    def validate(self, attrs):
+        try:
+            sku = SKU.objects.get(id=attrs["sku_id"])
+        except SKU.DoesNotExist:
+            return serializers.ValidationError("该商品不存在")
+
+        if attrs["count"] > sku.stock:
+            return serializers.ValidationError("商品库存不足")
+
+        return attrs
