@@ -10,7 +10,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from carts import constants
-from carts.serializers import CartSerializer, CartSKUSerializer,CartDeleteSerializer
+from carts.serializers import CartSerializer, CartSKUSerializer,CartDeleteSerializer,CartSelectAllSerializer
 from goods.models import SKU
 
 
@@ -195,5 +195,49 @@ class CartView(GenericAPIView):
                     cookie_cart = base64.b64encode(pickle.dumps(cart)).decode()
                     # 保存cookie
                     response.set_cookie("cart", cookie_cart, max_age=constants.CART_COOKIE_EXPIRES)
+
+            return response
+
+
+class CartSelectAllView(GenericAPIView):
+    """购物车全选"""
+
+    def perform_authentication(self, request):
+        pass
+
+    serializer_class = CartSelectAllSerializer
+
+    def put(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        selected = serializer.validated_data["selected"]
+
+        try:
+            user = request.user
+        except Exception:
+            user = None
+
+        if user and user.is_authenticated:
+            redis_conn = get_redis_connection("cart")
+            cart = redis_conn.hgetall("cart_%s" % user.id)
+            sku_id_list = cart.keys()
+
+            if selected:
+                redis_conn.sadd("cart_selected_%s" % user.id, *sku_id_list)
+            else:
+                redis_conn.srem("cart_selected_%s" % user.id, *sku_id_list)
+
+            return Response({"message":"ok"})
+        else:
+            cart = request.COOKIES.get("cart")
+            response = Response({"message":"ok"})
+            if cart:
+                cart = pickle.loads(base64.b64decode(cart.encode()))
+                for sku_id in cart:
+                    cart[sku_id]["selected"] = selected
+                cookie_cart = base64.b64encode(pickle.dumps(cart)).decode()
+
+                # 保存cookies
+                response.set_cookie("cart", cookie_cart, max_age=constants.CART_COOKIE_EXPIRES)
 
             return response
