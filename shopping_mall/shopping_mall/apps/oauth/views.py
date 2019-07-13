@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jwt.settings import api_settings
 
+from carts.utils import merge_cart_cookie_to_redis
 from oauth.exceptions import OAuthQQAPIError
 from oauth.models import OAuthQQUser
 from oauth.serializers import OAuthQQUserSerializer
@@ -61,11 +62,20 @@ class QQAuthUserView(CreateAPIView):
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
 
-            return Response({
+            # return Response({
+            #     'username': user.username,
+            #     'user_id': user.id,
+            #     'token': token
+            # })
+            response = Response({
                 'username': user.username,
                 'user_id': user.id,
                 'token': token
             })
+
+            # 添加合并购物车
+            response = merge_cart_cookie_to_redis(request, user, response)
+            return response
 
     # 数据不存在,创建用户,处理openid并返回
     # def post(self, request):
@@ -80,3 +90,13 @@ class QQAuthUserView(CreateAPIView):
     #     })
     #
     #     return response
+
+    # 数据不存在,创建用户,处理openid并返回
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        # 合并购物车
+        user = self.user
+        response = merge_cart_cookie_to_redis(request, user, response)
+
+        return response
