@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'areas.apps.AreasConfig',
     'goods.apps.GoodsConfig',
     'contents.apps.ContentsConfig',
+    'carts.apps.CartsConfig',
 ]
 
 MIDDLEWARE = [
@@ -133,6 +134,13 @@ CACHES = {
     "history": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "cart": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/4",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -249,15 +257,15 @@ AUTHENTICATION_BACKENDS = [
     'users.utils.UsernameMobileAuthBackend',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
 # CORS
-# CORS_ORIGIN_WHITELIST = (
-#     '127.0.0.1:8080',
-#     'localhost:8080',
-#     'www.shopping.site:8080',
-#     'http://api.shopping.site:8080'
-# )
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'http://www.shopping.site:8080',
+    'http://api.shopping.site:8080'
+)
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 
 # QQ登录参数
@@ -308,7 +316,7 @@ GENERATED_STATIC_HTML_FILES_DIR = os.path.join(os.path.dirname(os.path.dirname(B
 # 定时任务
 CRONJOBS = [
     # 每5分钟执行一次生成主页静态文件
-    ('*/5* * * *', 'contents.crons.generate_static_index_html', '>> '+ os.path.join(os.path.dirname(BASE_DIR), "logs/crontab.log"))
+    ('*/1 * * * *', 'contents.crons.generate_static_index_html', '>> '+ os.path.join(os.path.dirname(BASE_DIR), "logs/crontab.log"))
 ]
 # 解决crontab中文问题
 CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
