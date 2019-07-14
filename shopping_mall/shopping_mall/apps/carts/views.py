@@ -47,7 +47,7 @@ class CartView(GenericAPIView):
             pl.hincrby("cart_%s" % user.id, sku_id, count)
             #　保存添加购物车的勾选项默认为勾选
             if selected:
-                pl.sadd("cart_select_%s" % user.id, sku_id)
+                pl.sadd("cart_selected_%s" % user.id, sku_id)
             pl.execute()
 
             # 返回相应
@@ -94,7 +94,7 @@ class CartView(GenericAPIView):
             # 用户已登录,从redis中获取数据
             redis_conn = get_redis_connection("cart")
             redis_cart = redis_conn.hgetall("cart_%s" % user.id)
-            redis_cart_selected = redis_conn.smembers("cart_select_%s" % user.id)
+            redis_cart_selected = redis_conn.smembers("cart_selected_%s" % user.id)
 
             # 购物车内商品
             cart = {}
@@ -143,6 +143,8 @@ class CartView(GenericAPIView):
             pl.hset("cart_%s" % user.id, sku_id, count)
             if selected:
                 pl.sadd("cart_selected_%s" % user.id, sku_id)
+            else:
+                pl.srem('cart_selected_%s' % user.id, sku_id)
             pl.execute()
 
             return Response(serializer.data)
