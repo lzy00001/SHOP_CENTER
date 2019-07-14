@@ -110,7 +110,7 @@ class AddressViewSet(CreateModelMixin, UpdateModelMixin, GenericViewSet):
         user = self.request.user
         return Response({
             "user_id":user.id,
-            "default_addrss_id":user.default_address,   # 默认地址ID
+            "default_address_id":user.default_address_id,   # 默认地址ID
             "limit":constants.USER_ADDRESS_COUNTS_LIMIT,
             "addresses":serializer.data,
         })
@@ -118,7 +118,8 @@ class AddressViewSet(CreateModelMixin, UpdateModelMixin, GenericViewSet):
     def create(self, request, *args, **kwargs):
         """保存用户地址"""
         # 检查用户地址是否超过上限
-        count = request.user.addresses.filter(is_delect=False).count()
+        # count = request.user.addresses.filter(is_delect=False).count()
+        count = request.user.addresses.count()
         if count >= constants.USER_ADDRESS_COUNTS_LIMIT:
             return Response({"message":"保存地址数据已经达到上限"}, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
@@ -133,7 +134,9 @@ class AddressViewSet(CreateModelMixin, UpdateModelMixin, GenericViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["put"], detail=True)
-    def status(self, request, *args, **kwargs):
+    # def status(self, request, *args, **kwargs):
+    def status(self, request, pk=None, address_id=None):
+        """设置默认地址"""
         address = self.get_object()
         request.user.default_address = address
         request.user.save()
