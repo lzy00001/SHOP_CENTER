@@ -3,12 +3,13 @@ from django.shortcuts import render
 
 # Create your views here.
 from django_redis import get_redis_connection
+from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from goods.models import SKU
-from orders.serializers import OrderSettlementSerializer
+from orders.serializers import OrderSettlementSerializer, SaveOrderSerializer
 
 
 class OrderSettlementView(APIView):
@@ -40,3 +41,8 @@ class OrderSettlementView(APIView):
 
         return Response(serializer.data)
 
+
+class SaveOrderView(CreateAPIView):
+    """保存订单"""
+    serializer_class = SaveOrderSerializer
+    permission_classes = [IsAuthenticated]
