@@ -182,7 +182,7 @@ class CartView(GenericAPIView):
             redis_conn = get_redis_connection("cart")
             pl = redis_conn.pipeline()
             pl.hdel("cart_%s" % user.id, sku_id)
-            pl.srem("car_selected_%s" % user.id, sku_id)
+            pl.srem("cart_selected_%s" % user.id, sku_id)
             pl.execute()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
