@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     # 添加app
     # 'rest_framework',
     'corsheaders',
+    'xadmin',
+    'crispy_forms',
+    'reversion',
     # 'shopping_mall.apps.users.apps.UsersConfig',
     'ckeditor',  # 富文本编辑器
     'ckeditor_uploader',  # 富文本编辑器上传图片模块
@@ -327,7 +330,7 @@ CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-        'URL': 'http://192.168.65.146:9200/',  # 此处为elasticsearch运行的服务器ip地址，端口号固定为9200
+        'URL': 'http://192.168.65.147:9200/',  # 此处为elasticsearch运行的服务器ip地址，端口号固定为9200
         'INDEX_NAME': 'shopping',  # 指定elasticsearch建立的索引库的名称
     },
 }
