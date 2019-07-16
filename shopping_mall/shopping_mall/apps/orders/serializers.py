@@ -104,8 +104,8 @@ class SaveOrderSerializer(serializers.ModelSerializer):
                             raise serializers.ValidationError("商品库存不足")
 
                         # 用于演示并发下单
-                        import time
-                        time.sleep(5)
+                        # import time
+                        # time.sleep(5)
 
                         # 减少库存,增加商品销量
                         # 保存订单商品数据
