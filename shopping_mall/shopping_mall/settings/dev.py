@@ -109,6 +109,14 @@ DATABASES = {
         'USER':'shopping',  # 数据库用户名
         'PASSWORD':'shopping',  # 数据库用户密码
         'NAME': 'shopping_mall',  # 数据库名称
+    },
+    'slave': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': '127.0.0.1',  # 数据库主机
+        'PORT': 8306,  # 数据库主机
+        'USER': 'root',  # 数据库用户名
+        'PASSWORD': 'mysql',  # 数据库用户密码
+        'NAME': 'shopping_mall',  # 数据库名称
     }
 }
 
@@ -342,3 +350,6 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 ALIPAY_APPID = "2016101000655107"
 ALIPAY_URL = "https://openapi.alipaydev.com/gateway.do"
 ALIPAY_DEBUG = True
+
+# 配置读写分离
+DsATABASE_ROUTERS = ['shopping_mall.utils.db_router.MasterSlaveDBRouter']
