@@ -277,7 +277,9 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8080',
     'http://localhost:8080',
     'http://www.meiduo.site:8080',
+    'http://www.meiduo.site',
     'http://api.meiduo.site:8080'
+
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 
@@ -353,3 +355,6 @@ ALIPAY_DEBUG = True
 
 # 配置读写分离
 DsATABASE_ROUTERS = ['shopping_mall.utils.db_router.MasterSlaveDBRouter']
+#
+# # 收集静态文件的保存目录
+# STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'front_end_pc/static')
