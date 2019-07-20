@@ -13,10 +13,10 @@ class CartSerializer(serializers.Serializer):
         try:
             sku = SKU.objects.get(id=attrs["sku_id"])
         except SKU.DoesNotExist:
-            return serializers.ValidationError("该商品不存在")
+            raise serializers.ValidationError("该商品不存在")
 
         if attrs["count"] > sku.stock:
-            return serializers.ValidationError("商品库存不足")
+            raise serializers.ValidationError("商品库存不足")
 
         return attrs
 
